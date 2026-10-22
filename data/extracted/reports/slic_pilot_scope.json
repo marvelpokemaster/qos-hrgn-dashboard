@@ -1,0 +1,33 @@
+{
+  "plan": "fb47bb45a49f43b22f90",
+  "scope": "validation-only graph pilot; 64 train / 16 validation; no test subjects",
+  "complete": true,
+  "conclusive_resolution_selection": false,
+  "status": {
+    "plan": "fb47bb45a49f43b22f90",
+    "mode": "validation",
+    "paused": false,
+    "finished_jobs": [
+      {
+        "experiment": "full",
+        "seed": 42
+      },
+      {
+        "experiment": "slic_5000",
+        "seed": 42
+      },
+      {
+        "experiment": "slic_10000",
+        "seed": 42
+      },
+      {
+        "experiment": "slic_20000",
+        "seed": 42
+      }
+    ],
+    "report_ready": true,
+    "scheduled_training_complete": true,
+    "all_training_complete": true
+  },
+  "source_prefix": "continuation_v8/b36d43872a3781687ac7"
+}

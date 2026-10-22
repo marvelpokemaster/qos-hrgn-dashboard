@@ -1,0 +1,16 @@
+{
+  "single_seed": true,
+  "stopping_reasons": {
+    "cnn_only/voxel": "early_stopping",
+    "fixed_shared_hops/graph": "early_stopping",
+    "full/graph": "early_stopping",
+    "full/voxel": "epoch_cap",
+    "graphsage_backbone/graph": "early_stopping",
+    "no_voxel/graph": "early_stopping",
+    "segresnet/voxel": "early_stopping"
+  },
+  "training_is_compute_limited": false,
+  "multi_seed_reproducibility_established": false,
+  "slic_is_validation_pilot": true,
+  "journal_readiness_requires_assessment_of_actual_curves_and_results": true
+}

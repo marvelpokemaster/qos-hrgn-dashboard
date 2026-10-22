@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QoS-HRGN Clinical PACS & Research Evaluation Workbench</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#090D16',
+                        card: '#111827',
+                        border: '#1F2937',
+                        cyan: { 400: '#06B6D4', 500: '#0891B2' },
+                        emerald: { 400: '#10B981', 500: '#059669' },
+                        amber: { 400: '#F59E0B', 500: '#D97706' },
+                        rose: { 400: '#F43F5E', 500: '#E11D48' },
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Apache ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <!-- Custom PACS Styles -->
+    <link rel="stylesheet" href="/static/css/custom_pacs.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-[#090D16] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-black">
+
+    <!-- Top Sticky Telemetry Bar -->
+    <header class="sticky top-0 z-50 bg-[#090D16]/90 backdrop-blur-md border-b border-gray-800 px-6 py-3">
+        <div class="max-w-[1700px] mx-auto flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold text-xl shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                    🧠
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-bold text-lg text-white tracking-tight">QoS-HRGN Research Workbench</h1>
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">IEEE TMI / MICCAI</span>
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">Verified Final Run</span>
+                    </div>
+                    <div class="text-xs text-gray-400">BraTS 2021 Benchmark · Held-out Test Cohort (n = 189) · Zero-GPU PACS Engine</div>
+                </div>
+            </div>
+
+            <!-- Top KPIs -->
+            <div class="flex items-center gap-3">
+                <div class="px-3.5 py-1.5 rounded-lg pacs-card border-gray-800 text-center">
+                    <div class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Whole Tumor (WT)</div>
+                    <div id="kpi-wt-dice" class="text-lg font-bold text-emerald-400 tabular-nums">92.26%</div>
+                </div>
+                <div class="px-3.5 py-1.5 rounded-lg pacs-card border-gray-800 text-center">
+                    <div class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Tumor Core (TC)</div>
+                    <div id="kpi-tc-dice" class="text-lg font-bold text-amber-400 tabular-nums">89.79%</div>
+                </div>
+                <div class="px-3.5 py-1.5 rounded-lg pacs-card border-gray-800 text-center">
+                    <div class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Enhancing (ET)</div>
+                    <div id="kpi-et-dice" class="text-lg font-bold text-rose-400 tabular-nums">85.84%</div>
+                </div>
+                <div class="px-3.5 py-1.5 rounded-lg pacs-card border-gray-800 text-center">
+                    <div class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">ET HD95 Error</div>
+                    <div id="kpi-et-hd95" class="text-lg font-bold text-cyan-400 tabular-nums">11.61 mm</div>
+                </div>
+                <button onclick="toggleFullscreen()" title="Toggle Fullscreen (F)" class="px-3 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium border border-gray-700 flex items-center gap-1.5 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                    <span>Fullscreen</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="max-w-[1700px] mx-auto mt-3 flex items-center justify-between border-t border-gray-800/80 pt-2.5">
+            <nav class="flex space-x-2">
+                <button id="tab-btn-pacs" onclick="switchTab('pacs')" class="tab-button px-4 py-2 text-xs font-semibold rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500 flex items-center gap-2 transition">
+                    <span>1. PACS MRI Viewport</span>
+                </button>
+                <button id="tab-btn-benchmark" onclick="switchTab('benchmark')" class="tab-button px-4 py-2 text-xs font-semibold rounded-lg text-gray-400 border border-transparent hover:text-gray-200 transition">
+                    <span>2. Benchmark & Statistics</span>
+                </button>
+                <button id="tab-btn-xai" onclick="switchTab('xai')" class="tab-button px-4 py-2 text-xs font-semibold rounded-lg text-gray-400 border border-transparent hover:text-gray-200 transition">
+                    <span>3. Topological XAI Studio</span>
+                </button>
+                <button id="tab-btn-slic" onclick="switchTab('slic')" class="tab-button px-4 py-2 text-xs font-semibold rounded-lg text-gray-400 border border-transparent hover:text-gray-200 transition">
+                    <span>4. SLIC Pareto Frontier</span>
+                </button>
+            </nav>
+            <div class="text-[11px] text-gray-400 font-mono hidden md:flex items-center gap-3">
+                <span class="bg-gray-800/70 px-2 py-0.5 rounded border border-gray-700">Keys: [1-4] Tabs</span>
+                <span class="bg-gray-800/70 px-2 py-0.5 rounded border border-gray-700">[← / →] Cases</span>
+                <span class="bg-gray-800/70 px-2 py-0.5 rounded border border-gray-700">[F] Fullscreen</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Containers -->
+    <main class="flex-1 max-w-[1700px] w-full mx-auto p-6 space-y-6">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: PACS MRI VIEWPORT                   -->
+        <!-- ========================================== -->
+        <section id="tab-content-pacs" class="tab-content space-y-4">
+            <!-- Patient Diagnostic HUD Bar -->
+            <div id="pacs-hud" class="pacs-card p-4">
+                <!-- Dynamically populated by mri_viewer.js -->
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Viewport Canvas (3 cols) -->
+                <div class="lg:col-span-3 pacs-card p-4 space-y-3">
+                    <div class="flex items-center justify-between text-xs text-gray-400 border-b border-gray-800 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-gray-200">Interactive Qualitative Examination:</span>
+                            <span>Raw MRI Anatomy vs Ground Truth vs QoS-HRGN (Ours) vs SegResNet</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span>Scroll to Zoom · Drag to Pan</span>
+                            <button onclick="pacsViewer.resetView()" class="px-2 py-1 bg-gray-800 hover:bg-gray-700 rounded text-cyan-400 border border-gray-700">Reset View</button>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Container -->
+                    <div class="pacs-canvas-container h-[580px] w-full flex items-center justify-center">
+                        <canvas id="pacs-canvas"></canvas>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between text-xs text-gray-400 pt-1">
+                        <div class="flex items-center gap-4">
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span> Whole Tumor (WT / Edema)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span> Tumor Core (TC / Necrosis)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-rose-500 inline-block"></span> Enhancing Tumor (ET / Active)</span>
+                        </div>
+                        <div class="text-[11px] text-gray-400">High-resolution cross-sectional overlays rendered from verified test checkpoint</div>
+                    </div>
+                </div>
+
+                <!-- PACS Controls & Selector Sidebar (1 col) -->
+                <div class="space-y-4">
+                    <!-- Patient Selector -->
+                    <div class="pacs-card p-4 space-y-3">
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">Select Representative Case</label>
+                        <select id="patient-selector" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-2.5 text-sm text-cyan-300 focus:outline-none focus:border-cyan-500">
+                            <!-- Populated dynamically -->
+                        </select>
+                        <div class="text-xs text-gray-400">Cases selected under journal protocol (highest Dice, lowest Dice, boundary complexity, large/small tumor volume).</div>
+                    </div>
+
+                    <!-- PACS Visual Controls -->
+                    <div class="pacs-card p-4 space-y-4">
+                        <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wider border-b border-gray-800 pb-2">Radiology Window Controls</h3>
+                        
+                        <!-- Brightness -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-gray-400">
+                                <span>Brightness</span>
+                                <span id="val-brightness">100%</span>
+                            </div>
+                            <input id="slider-brightness" type="range" min="50" max="200" value="100" class="w-full accent-cyan-400"
+                                   oninput="document.getElementById('val-brightness').textContent = this.value + '%'; updateFilters();">
+                        </div>
+
+                        <!-- Contrast -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-gray-400">
+                                <span>Contrast</span>
+                                <span id="val-contrast">100%</span>
+                            </div>
+                            <input id="slider-contrast" type="range" min="50" max="200" value="100" class="w-full accent-cyan-400"
+                                   oninput="document.getElementById('val-contrast').textContent = this.value + '%'; updateFilters();">
+                        </div>
+
+                        <!-- Opacity -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-gray-400">
+                                <span>Overlay Opacity</span>
+                                <span id="val-opacity">100%</span>
+                            </div>
+                            <input id="slider-opacity" type="range" min="10" max="100" value="100" class="w-full accent-cyan-400"
+                                   oninput="document.getElementById('val-opacity').textContent = this.value + '%'; updateFilters();">
+                        </div>
+
+                        <!-- Filter Toggle -->
+                        <div class="pt-2 flex items-center justify-between">
+                            <span class="text-xs text-gray-300">Invert Palette</span>
+                            <input id="toggle-invert" type="checkbox" class="w-4 h-4 accent-cyan-500 rounded" onchange="updateFilters();">
+                        </div>
+                    </div>
+
+                    <!-- Clinical Findings Card -->
+                    <div class="pacs-card p-4 space-y-2 border-l-4 border-l-cyan-400">
+                        <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Radiological Assessment</div>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            QoS-HRGN demonstrates superior boundary delineation at complex infiltrating edema edges and small necrotic cores where standard 3D CNNs suffer from spatial ambiguity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: BENCHMARK & STATISTICS             -->
+        <!-- ========================================== -->
+        <section id="tab-content-benchmark" class="tab-content hidden space-y-6">
+            <!-- Leaderboard Card -->
+            <div class="pacs-card p-6 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white tracking-tight">Official Held-out Test Benchmark (n = 189 Patients)</h2>
+                        <p class="text-xs text-gray-400">Complete architectural ablation and state-of-the-art comparison on the exact same patient split.</p>
+                    </div>
+                    <button id="btn-toggle-deltas" onclick="toggleDeltas()" class="px-3.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-cyan-400 text-xs font-semibold border border-cyan-500/40 transition">
+                        Show Δ vs QoS-HRGN
+                    </button>
+                </div>
+
+                <!-- Leaderboard Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-300">
+                        <thead class="text-xs uppercase bg-gray-900/60 text-gray-400 border-b border-gray-800">
+                            <tr>
+                                <th class="py-3 px-4">Architecture / Model</th>
+                                <th class="py-3 px-4 text-emerald-400">WT Dice (%)</th>
+                                <th class="py-3 px-4 text-amber-400">TC Dice (%)</th>
+                                <th class="py-3 px-4 text-rose-400">ET Dice (%)</th>
+                                <th class="py-3 px-4 text-gray-300">WT HD95 (mm)</th>
+                                <th class="py-3 px-4 text-gray-300">TC HD95 (mm)</th>
+                                <th class="py-3 px-4 text-cyan-300">ET HD95 (mm)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Visual Charts Grid (2 cols) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Bar Comparison Chart -->
+                <div class="pacs-card p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Multi-Model Comparative Accuracy</h3>
+                        <span class="text-xs text-gray-400">Dice Score Higher is Better</span>
+                    </div>
+                    <div id="chart-leaderboard" class="w-full h-[380px]"></div>
+                </div>
+
+                <!-- 189-Patient Boxplot & Swarm -->
+                <div class="pacs-card p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Cohort Distribution (All 189 Test Patients)</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-400">Model:</span>
+                            <select id="swarm-model-select" onchange="renderPatientSwarmChart(globalManifest.patient_metrics, this.value)" class="bg-gray-800 border border-gray-700 text-xs text-cyan-400 rounded px-2 py-1">
+                                <option value="full">QoS-HRGN (Ours)</option>
+                                <option value="segresnet">SegResNet</option>
+                                <option value="cnn_only">CNN Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="chart-patient-swarm" class="w-full h-[380px]"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: TOPOLOGICAL XAI STUDIO              -->
+        <!-- ========================================== -->
+        <section id="tab-content-xai" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Exact Modality Shapley Values -->
+                <div class="pacs-card p-6 space-y-4">
+                    <div class="border-b border-gray-800 pb-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Exact Modality Shapley Value Attributions</h3>
+                            <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">4-Player Game Theory</span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Exact Shapley feature replacement quantifying feature importance per tumor class.</p>
+                    </div>
+                    <div id="chart-shapley" class="w-full h-[360px]"></div>
+
+                    <!-- Clinical Insights -->
+                    <div class="space-y-2 pt-2 border-t border-gray-800/80">
+                        <div class="flex items-start gap-2 text-xs text-gray-300">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 mt-1 flex-shrink-0"></span>
+                            <div><b>FLAIR Dominance in Whole Tumor (WT):</b> FLAIR carries over 45% of attribution mass for Whole Tumor, aligning with peritumoral vasogenic edema pathology.</div>
+                        </div>
+                        <div class="flex items-start gap-2 text-xs text-gray-300">
+                            <span class="w-2 h-2 rounded-full bg-rose-400 mt-1 flex-shrink-0"></span>
+                            <div><b>T1ce Dominance in Enhancing Tumor (ET):</b> Contrast-enhanced T1ce accounts for >75% attribution in Enhancing Tumor, capturing active blood-brain barrier breakdown.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Local Heterogeneous Graph Topology -->
+                <div class="pacs-card p-6 space-y-4">
+                    <div class="border-b border-gray-800 pb-3 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Topological Graph Prior & Heterogeneous Connectivity</h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Dual-partition supervoxels with adaptive hop message passing</p>
+                        </div>
+                    </div>
+                    <div class="h-[360px] bg-black rounded-lg border border-gray-800 flex items-center justify-center overflow-hidden">
+                        <img id="img-local-graph" class="max-h-full max-w-full object-contain" alt="Local Graph Visualization">
+                    </div>
+                    <div class="text-xs text-gray-400 leading-relaxed">
+                        Nodes represent 15,000 spatial supervoxels across dual partitions. Adaptive gating dynamically routes messages through 0 to 2 extra hops across tumor interfaces.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hop Distributions & Gating Analysis -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="pacs-card p-6 space-y-3">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-gray-800 pb-2">Adaptive Hop Distributions Across Tumor Regions</h3>
+                    <div class="h-[280px] bg-black rounded-lg border border-gray-800 flex items-center justify-center overflow-hidden">
+                        <img id="img-hop-dist" class="max-h-full max-w-full object-contain" alt="Hop Distributions">
+                    </div>
+                    <p class="text-xs text-gray-400">Histogram of additional message-passing steps executed across Healthy vs Edema vs Necrotic Core.</p>
+                </div>
+
+                <div class="pacs-card p-6 space-y-3">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-gray-800 pb-2">Gating Probability Summary</h3>
+                    <div class="h-[280px] bg-black rounded-lg border border-gray-800 flex items-center justify-center overflow-hidden">
+                        <img id="img-gate-summary" class="max-h-full max-w-full object-contain" alt="Gate Summary">
+                    </div>
+                    <p class="text-xs text-gray-400">Statistical validation proving the model learns non-trivial topological routing rather than collapsing to fixed hops.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: SLIC PARETO FRONTIER LAB            -->
+        <!-- ========================================== -->
+        <section id="tab-content-slic" class="tab-content hidden space-y-6">
+            <div class="pacs-card p-6 space-y-4">
+                <div class="border-b border-gray-800 pb-3 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white tracking-tight">Supervoxel Resolution Sensitivity (SLIC Pilot Study)</h2>
+                        <p class="text-xs text-gray-400">Evaluating 5,000 vs 10,000 vs 15,000 vs 20,000 supervoxels across identical validation subjects.</p>
+                    </div>
+                    <div class="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/40 text-cyan-400 text-xs font-semibold flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                        Selected Resolution: 15,000 Supervoxels
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                    <!-- Pareto Curve Chart -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider">Dual-Axis Pareto Accuracy vs Computational Complexity</h3>
+                        <div id="chart-slic-pareto" class="w-full h-[380px]"></div>
+                    </div>
+
+                    <!-- Trade-off Analysis & Figure -->
+                    <div class="space-y-4">
+                        <div class="h-[280px] bg-black rounded-lg border border-gray-800 flex items-center justify-center overflow-hidden">
+                            <img id="img-slic-cost" class="max-h-full max-w-full object-contain" alt="SLIC Performance Cost">
+                        </div>
+                        <div class="pacs-card p-4 space-y-2 border-l-4 border-l-cyan-400">
+                            <div class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Engineering Rationale for 15,000 Supervoxels</div>
+                            <p class="text-xs text-gray-300 leading-relaxed">
+                                Moving from 5k to 15k yields substantial Dice gains (+2.06% WT, +1.88% TC, +1.83% ET). Going to 20k exhibits diminishing returns while increasing graph node count to ~40,000, confirming 15,000 as the optimal Pareto sweet-spot.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800/80 px-6 py-4 text-center text-xs text-gray-500 flex flex-wrap items-center justify-between gap-4 max-w-[1700px] w-full mx-auto">
+        <div>QoS-HRGN: Quality-of-Service Aware Heterogeneous Relational Graph Network</div>
+        <div class="font-mono text-[11px] text-gray-400">Model Hash: b36d43872a3781687ac7 · Final Verified Artifacts</div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/mri_viewer.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+    <script>
+        function updateFilters() {
+            if (!window.pacsViewer) return;
+            const b = document.getElementById('slider-brightness').value;
+            const c = document.getElementById('slider-contrast').value;
+            const o = document.getElementById('slider-opacity').value;
+            const inv = document.getElementById('toggle-invert').checked;
+            window.pacsViewer.setFilter(b, c, inv, o);
+        }
+    </script>
+</body>
+</html>

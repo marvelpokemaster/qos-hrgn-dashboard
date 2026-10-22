@@ -1,0 +1,32 @@
+{
+  "t1ce/WT": {
+    "patient_mean": 1.7522134161723755,
+    "patient_sd": 0.14495969541319836,
+    "n_present": 189
+  },
+  "flair/WT": {
+    "patient_mean": 1.8653827670691026,
+    "patient_sd": 0.07537056372326588,
+    "n_present": 189
+  },
+  "t1ce/TC": {
+    "patient_mean": 1.3956179888628888,
+    "patient_sd": 0.2674245022577067,
+    "n_present": 188
+  },
+  "flair/TC": {
+    "patient_mean": 1.7308188379782723,
+    "patient_sd": 0.15763597783850758,
+    "n_present": 188
+  },
+  "t1ce/ET": {
+    "patient_mean": 1.1969484992770034,
+    "patient_sd": 0.20889375588375542,
+    "n_present": 182
+  },
+  "flair/ET": {
+    "patient_mean": 1.647793564560194,
+    "patient_sd": 0.14877734924699437,
+    "n_present": 182
+  }
+}

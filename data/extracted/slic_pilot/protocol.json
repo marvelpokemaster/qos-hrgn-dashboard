@@ -1,0 +1,325 @@
+{
+  "version": "research-v8-practical",
+  "compute_protocol": {
+    "protocol": "convergence-v9",
+    "phase_seconds": 2700,
+    "single_seed": true,
+    "pilot": true,
+    "stopping": "epoch cap + early stopping on validation Dice; best-validation checkpoint"
+  },
+  "rows": [
+    {
+      "name": "full",
+      "description": "Practical HGT + learned 0..2 hop mixture + voxel refinement",
+      "backbone": "hgt",
+      "structural": false,
+      "descriptors": false,
+      "hop_mode": "adaptive",
+      "fixed_hops": 2,
+      "cross_edges": true,
+      "soft_labels": true,
+      "voxel": false,
+      "boundary": false,
+      "focal": false,
+      "hop_penalty": true,
+      "n_segments": 15000,
+      "masked_reconstruction": false,
+      "voxel_kind": "refinement"
+    },
+    {
+      "name": "slic_5000",
+      "description": "Validation-only SLIC pilot",
+      "backbone": "hgt",
+      "structural": false,
+      "descriptors": false,
+      "hop_mode": "adaptive",
+      "fixed_hops": 2,
+      "cross_edges": true,
+      "soft_labels": true,
+      "voxel": false,
+      "boundary": false,
+      "focal": false,
+      "hop_penalty": true,
+      "n_segments": 5000,
+      "masked_reconstruction": false,
+      "voxel_kind": "refinement"
+    },
+    {
+      "name": "slic_10000",
+      "description": "Validation-only SLIC pilot",
+      "backbone": "hgt",
+      "structural": false,
+      "descriptors": false,
+      "hop_mode": "adaptive",
+      "fixed_hops": 2,
+      "cross_edges": true,
+      "soft_labels": true,
+      "voxel": false,
+      "boundary": false,
+      "focal": false,
+      "hop_penalty": true,
+      "n_segments": 10000,
+      "masked_reconstruction": false,
+      "voxel_kind": "refinement"
+    },
+    {
+      "name": "slic_20000",
+      "description": "Validation-only SLIC pilot",
+      "backbone": "hgt",
+      "structural": false,
+      "descriptors": false,
+      "hop_mode": "adaptive",
+      "fixed_hops": 2,
+      "cross_edges": true,
+      "soft_labels": true,
+      "voxel": false,
+      "boundary": false,
+      "focal": false,
+      "hop_penalty": true,
+      "n_segments": 20000,
+      "masked_reconstruction": false,
+      "voxel_kind": "refinement"
+    }
+  ],
+  "seeds": [
+    42
+  ],
+  "split": {
+    "train": [
+      "BraTS2021_00017",
+      "BraTS2021_00052",
+      "BraTS2021_00054",
+      "BraTS2021_00061",
+      "BraTS2021_00064",
+      "BraTS2021_00097",
+      "BraTS2021_00159",
+      "BraTS2021_00186",
+      "BraTS2021_00203",
+      "BraTS2021_00204",
+      "BraTS2021_00212",
+      "BraTS2021_00220",
+      "BraTS2021_00242",
+      "BraTS2021_00267",
+      "BraTS2021_00300",
+      "BraTS2021_00336",
+      "BraTS2021_00346",
+      "BraTS2021_00426",
+      "BraTS2021_00469",
+      "BraTS2021_00480",
+      "BraTS2021_00483",
+      "BraTS2021_00493",
+      "BraTS2021_00506",
+      "BraTS2021_00525",
+      "BraTS2021_00557",
+      "BraTS2021_00576",
+      "BraTS2021_00581",
+      "BraTS2021_00607",
+      "BraTS2021_00706",
+      "BraTS2021_00718",
+      "BraTS2021_00730",
+      "BraTS2021_00758",
+      "BraTS2021_00806",
+      "BraTS2021_00809",
+      "BraTS2021_01038",
+      "BraTS2021_01041",
+      "BraTS2021_01075",
+      "BraTS2021_01094",
+      "BraTS2021_01161",
+      "BraTS2021_01207",
+      "BraTS2021_01216",
+      "BraTS2021_01225",
+      "BraTS2021_01236",
+      "BraTS2021_01273",
+      "BraTS2021_01274",
+      "BraTS2021_01295",
+      "BraTS2021_01297",
+      "BraTS2021_01346",
+      "BraTS2021_01365",
+      "BraTS2021_01400",
+      "BraTS2021_01430",
+      "BraTS2021_01435",
+      "BraTS2021_01453",
+      "BraTS2021_01477",
+      "BraTS2021_01486",
+      "BraTS2021_01490",
+      "BraTS2021_01491",
+      "BraTS2021_01522",
+      "BraTS2021_01527",
+      "BraTS2021_01584",
+      "BraTS2021_01586",
+      "BraTS2021_01589",
+      "BraTS2021_01614",
+      "BraTS2021_01649"
+    ],
+    "val": [
+      "BraTS2021_00060",
+      "BraTS2021_00103",
+      "BraTS2021_00193",
+      "BraTS2021_00306",
+      "BraTS2021_00707",
+      "BraTS2021_01024",
+      "BraTS2021_01110",
+      "BraTS2021_01164",
+      "BraTS2021_01176",
+      "BraTS2021_01257",
+      "BraTS2021_01285",
+      "BraTS2021_01375",
+      "BraTS2021_01410",
+      "BraTS2021_01415",
+      "BraTS2021_01526",
+      "BraTS2021_01599"
+    ],
+    "test": []
+  },
+  "dataset": "7c797f9219f914ba3d1af77f8e580b04027235cc436606ab158b9ef5c320c1dc",
+  "run_config": {
+    "identity": {
+      "protocol": "review-v3-full-volume",
+      "seed": 42,
+      "graph": {
+        "n_segments": 15000,
+        "compactness": 0.3,
+        "slic_iters": 10,
+        "min_overlap": 0.05,
+        "node_types": [
+          "t1ce",
+          "flair"
+        ],
+        "slic_modalities": [
+          "t1ce",
+          "flair"
+        ],
+        "modalities": [
+          "t1",
+          "t1ce",
+          "t2",
+          "flair"
+        ],
+        "node_feature_modalities": [
+          "t1",
+          "t1ce",
+          "t2",
+          "flair"
+        ],
+        "quantiles": [
+          0.1,
+          0.25,
+          0.5,
+          0.75,
+          0.9
+        ],
+        "node_feat_dim": 32,
+        "graph_version": 4
+      },
+      "model": {
+        "hidden_dim": 128,
+        "heads": 4,
+        "hgt_layers": 2,
+        "hops": 2,
+        "use_adaptive_hops": true,
+        "k_max": 2,
+        "hop_temperature": 1.0,
+        "dropout": 0.1,
+        "num_classes": 4
+      },
+      "structural": {
+        "normalization": "per-patient-v7",
+        "use_structural_refinement": false,
+        "structural_flags": {
+          "neighbor_stats": true,
+          "distance": true,
+          "component_size": true,
+          "enclosure": true,
+          "cross_modal": true
+        },
+        "structural_hidden": 32,
+        "structural_dropout": 0.1
+      },
+      "rec": {
+        "use_masked_reconstruction": false
+      }
+    },
+    "train": {
+      "phase_seconds_limit": null,
+      "compute_protocol": "convergence-v9",
+      "graph_training_protocol": "practical-v8-patient-mean",
+      "epochs": 100,
+      "batch_size": 8,
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "dice_weight": 1.0,
+      "et_focal_weight": 0.0,
+      "focal_gamma": 2.0,
+      "amp": true,
+      "hop_reg_weight": 0.002,
+      "structural_aux_weight": 0.3,
+      "lambda_rec": 0.3
+    },
+    "voxel": {
+      "phase_seconds_limit": null,
+      "compute_protocol": "convergence-v9",
+      "gpu_training_protocol": "v4-patient-mean-ce",
+      "effective_batch_size": 16,
+      "precision_policy": "auto",
+      "voxel_epochs": 100,
+      "voxel_lr": 0.001,
+      "voxel_base_channels": 32,
+      "voxel_dice_weight": 1.0,
+      "voxel_focal_weight": 0.0,
+      "voxel_focal_gamma": 2.0,
+      "ce_weight": 1.0,
+      "voxel_boundary_weight": 0.0,
+      "voxel_margin": 10,
+      "voxel_max_size": 128,
+      "inference_overlap": 0.25,
+      "training_patch": "50pct-tumour-50pct-uniform",
+      "selection": "full-volume-pp-Dice"
+    }
+  },
+  "pipeline_definitions_sha256": "b5ba00ce35682e2bc574e22ceec967be0d99c5bed21bb1993b4ef11c9a6c20d2",
+  "postprocess": {
+    "enabled": true,
+    "et_min_voxels": 300
+  },
+  "structural_teacher": {
+    "start": 1.0,
+    "end": 0.0
+  },
+  "ssl": {
+    "enabled": false,
+    "settings": {
+      "LAMBDA_REC": 0.3,
+      "REC_WARMUP_EPOCHS": 5,
+      "REC_MASK_RATE": 0.3,
+      "REC_EDGE_MASK_RATE": 0.15,
+      "REC_FLAGS": {
+        "feature": true,
+        "correspondence": true,
+        "spatial_edge": false
+      },
+      "REC_NEG_PER_POS": 1,
+      "REC_FEAT_LOSS": "smooth_l1",
+      "REC_SCE_GAMMA": 2.0,
+      "REC_SEPARATE_CLEAN_PASS": true
+    }
+  },
+  "class_weights": [
+    0.16930189728736877,
+    1.6609296798706055,
+    0.8157821297645569,
+    1.3539862632751465
+  ],
+  "source_hashes": {
+    "brats_practical.py": "f3ba3c08a9f5d215d75305736009fd6a6446d2e0293ccf930ff2f915bbbca906",
+    "brats_experiments.py": "41c50d3ab5706f2a4e63d6f4f8ee56cff8eed017a67e6f623798872c5b946af0",
+    "brats_gpu.py": "9a19f0738eef303925720a2f5e2b15b9d0d08be9c4853406b20d9710fbeb9908",
+    "brats_protocol.py": "6b4b0b52eed2c788c7d54aee31bef31ade5630dc5ce11741ab87442e1e1214fb",
+    "brats_graph.py": "4bc634078370b47c5aa77a5b36a35e8829b04e2b70adda04e2d5462b3e8c612a"
+  },
+  "epochs": 20,
+  "voxel_epochs": 100,
+  "patience": 15,
+  "debug": false,
+  "selection": "validation full-volume postprocessed mean WT/TC/ET Dice",
+  "metric_policy": "custom finite empty-region HD95; see RESEARCH_PROTOCOL.md"
+}

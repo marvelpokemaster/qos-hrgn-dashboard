@@ -1,0 +1,46 @@
+{
+  "seed": 42,
+  "selection": [
+    {
+      "case_id": "BraTS2021_00412",
+      "reason": "Lowest observed mean Dice"
+    },
+    {
+      "case_id": "BraTS2021_00156",
+      "reason": "Highest observed mean Dice"
+    },
+    {
+      "case_id": "BraTS2021_00321",
+      "reason": "Small enhancing-tumour region"
+    },
+    {
+      "case_id": "BraTS2021_00095",
+      "reason": "Large whole-tumour region"
+    },
+    {
+      "case_id": "BraTS2021_01615",
+      "reason": "High tumour surface-to-volume proxy"
+    },
+    {
+      "case_id": "BraTS2021_01281",
+      "reason": "Deterministic random example"
+    },
+    {
+      "case_id": "BraTS2021_01499",
+      "reason": "Deterministic random example"
+    },
+    {
+      "case_id": "BraTS2021_01546",
+      "reason": "Deterministic random example"
+    },
+    {
+      "case_id": "BraTS2021_01313",
+      "reason": "Deterministic random example"
+    },
+    {
+      "case_id": "BraTS2021_00631",
+      "reason": "Deterministic random example"
+    }
+  ],
+  "policy": "Descriptive post-test examples selected by disclosed morphology/score rules, then random fill; not a representative performance sample"
+}

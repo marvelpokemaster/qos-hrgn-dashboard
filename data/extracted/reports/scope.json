@@ -1,0 +1,19 @@
+{
+  "stage1_sha256": "b36d43872a3781687ac7ab5434f7ff7c81e2d75348427dd6032f85ce14767e0e",
+  "graph_scope": "Graph branch only, fixed topology; no CNN/SLIC attribution",
+  "hop_scope": "Node-majority regions, unweighted node histograms; additional propagation after HGT",
+  "xai_scope": "Exact four-player feature-replacement Shapley of WT/TC/ET probabilities, fractional region-volume weighting",
+  "xai_patient_ids": [
+    "BraTS2021_01441",
+    "BraTS2021_00099",
+    "BraTS2021_00084",
+    "BraTS2021_01546",
+    "BraTS2021_00780",
+    "BraTS2021_00321",
+    "BraTS2021_01643",
+    "BraTS2021_01062",
+    "BraTS2021_01156",
+    "BraTS2021_00610"
+  ],
+  "selection": "Fixed random seed; descriptive cohort, no directional significance claim"
+}

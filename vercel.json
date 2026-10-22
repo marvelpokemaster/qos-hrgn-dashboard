@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/manifest", "destination": "/data/manifest.json" },
+    { "source": "/api/metrics", "destination": "/data/manifest.json" },
+    { "source": "/api/slic", "destination": "/data/manifest.json" },
+    { "source": "/api/patients", "destination": "/data/manifest.json" },
+    { "source": "/static/(.*)", "destination": "/static/$1" },
+    { "source": "/data/(.*)", "destination": "/data/$1" },
+    { "source": "/", "destination": "/static/index.html" },
+    { "source": "/(.*)", "destination": "/static/index.html" }
+  ]
+}

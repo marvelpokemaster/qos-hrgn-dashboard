@@ -1,0 +1,123 @@
+/* Clinical PACS Dark Mode Design System */
+:root {
+    --bg-obsidian: #090D16;
+    --bg-card: #111827;
+    --bg-card-hover: #162032;
+    --border-subtle: #1F2937;
+    --border-highlight: #374151;
+    --neon-cyan: #06B6D4;
+    --neon-violet: #8B5CF6;
+    --tumor-wt: #10B981;
+    --tumor-tc: #F59E0B;
+    --tumor-et: #F43F5E;
+}
+
+body {
+    background-color: var(--bg-obsidian);
+    color: #E2E8F0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+}
+
+/* Tabular numbers for non-jittering readouts */
+.tabular-nums, .mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Glassmorphism Cards */
+.pacs-card {
+    background: rgba(17, 24, 39, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.pacs-card:hover {
+    border-color: var(--border-highlight);
+}
+
+.pacs-card-glow {
+    box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.4);
+}
+
+/* PACS Viewport Canvas */
+.pacs-canvas-container {
+    background: #000000;
+    border: 1px solid #1F2937;
+    border-radius: 0.5rem;
+    position: relative;
+    overflow: hidden;
+    cursor: crosshair;
+}
+
+.pacs-reticle {
+    position: absolute;
+    pointer-events: none;
+    border: 1px dashed rgba(6, 182, 212, 0.4);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #090D16;
+}
+::-webkit-scrollbar-thumb {
+    background: #2D3748;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #4A5568;
+}
+
+/* Neon Pill Badges */
+.badge-wt {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.badge-tc {
+    background: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+.badge-et {
+    background: rgba(244, 63, 94, 0.15);
+    color: #F43F5E;
+    border: 1px solid rgba(244, 63, 94, 0.4);
+}
+.badge-cyan {
+    background: rgba(6, 182, 212, 0.15);
+    color: #06B6D4;
+    border: 1px solid rgba(6, 182, 212, 0.4);
+}
+.badge-violet {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8B5CF6;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+/* Pulse animation for 15k sweet spot */
+@keyframes pulse-ring {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+}
+
+.pulse-target {
+    animation: pulse-ring 2s infinite;
+}
+
+/* Fullscreen Presentation Mode */
+:fullscreen .presentation-hide {
+    display: none !important;
+}
+
+:fullscreen body {
+    padding: 1rem;
+}

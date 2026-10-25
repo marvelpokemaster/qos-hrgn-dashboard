@@ -6,3 +6,5 @@ __pycache__/
 venv/
 data/final_reports.zip
 .DS_Store
+data/extracted/
+node_modules/

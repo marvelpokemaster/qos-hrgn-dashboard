@@ -27,7 +27,7 @@
   const sampleHist = (h, R) => { const s = sampler(h); return s ? s(R) : null; };
   const cbrt = Math.cbrt;
 
-  /* uniform spatial hash used for k-nearest-neighbour queries (keeps 15 000 nodes interactive) */
+  /* uniform spatial hash used for k-nearest-neighbor queries (keeps 15 000 nodes interactive) */
   function makeGrid(pos, ids, s) { const m = new Map(); ids.forEach(i => { const k = (((Math.floor((pos[3 * i] + 1.5) / s)) * 1024 + Math.floor((pos[3 * i + 1] + 1.5) / s)) * 1024 + Math.floor((pos[3 * i + 2] + 1.5) / s)); let a = m.get(k); if (!a) m.set(k, a = []); a.push(i); }); return { m, s }; }
   function knn(pos, a, grid, k, self, maxD) {
     const { m, s } = grid, ax = pos[3 * a], ay = pos[3 * a + 1], az = pos[3 * a + 2], cx = Math.floor((ax + 1.5) / s), cy = Math.floor((ay + 1.5) / s), cz = Math.floor((az + 1.5) / s);
@@ -66,7 +66,7 @@
     colorize(); samplers.clear();
   }
 
-  /* per-node colour cache; draw order grouped by colour so big graphs batch fill-style switches */
+  /* per-node color cache; draw order grouped by color so big graphs batch fill-style switches */
   function colorize() {
     L.cols = L.nodes.map(n => L.color === "class" ? CLSC[n.pred] : L.color === "hop" ? hopColor(Math.round(n.hop * 8) / 8) : (n.t ? "#ffb300" : "#5cf3ff"));
     L.order = L.nodes.map((_, i) => i).sort((a, b) => (L.cols[a] < L.cols[b] ? -1 : L.cols[a] > L.cols[b] ? 1 : 0));
@@ -172,11 +172,11 @@
 
   function gateChart() {
     const gs = L.hist.gates, rels = Object.keys(gs), nice = { "t1ce-spatial-t1ce": "T1ce spatial", "flair-spatial-flair": "FLAIR spatial", "t1ce-corresponds-flair": "T1ce ← FLAIR", "flair-corresponds-t1ce": "FLAIR ← T1ce" }, two = { "t1ce-spatial-t1ce": ["T1ce", "spatial"], "flair-spatial-flair": ["FLAIR", "spatial"], "t1ce-corresponds-flair": ["T1ce←", "FLAIR"], "flair-corresponds-t1ce": ["FLAIR←", "T1ce"] };
-    const ser = [{ id: "boundary", name: "tumour boundary", color: "#ffb300", values: rels.map(r => gs[r].boundary && gs[r].boundary.mean) }, { id: "interior", name: "interior", color: "#5cf3ff", values: rels.map(r => gs[r].interior && gs[r].interior.mean) }];
+    const ser = [{ id: "boundary", name: "tumor boundary", color: "#ffb300", values: rels.map(r => gs[r].boundary && gs[r].boundary.mean) }, { id: "interior", name: "interior", color: "#5cf3ff", values: rels.map(r => gs[r].interior && gs[r].interior.mean) }];
     C.bars(H.$("#chart-gates"), { cats: rels.map(r => ({ label: (two[r] || [r, ""])[0], sub: (two[r] || [r, ""])[1] })), series: ser, min: 0, max: Math.max(.6, ...ser.flatMap(s => s.values)) * 1.15, fmt: v => C.txt(v, 2), yLabel: "mean gate α", tip: (ci, se) => { const d = gs[rels[ci]][se.id]; return H.tip.rows((nice[rels[ci]] || rels[ci]) + " · " + se.name, [["mean α", H.f(d.mean, 3), se.color], ["edges", (d.n || 0).toLocaleString()]]); } });
     const parts = rels.map(r => { const b = gs[r].boundary.mean, i = gs[r].interior.mean; return { r, b, i, ratio: b / i }; });
     const sp = parts.filter(p => p.r.includes("spatial")), cr = parts.filter(p => p.r.includes("corresponds"));
-    H.$("#gate-note").innerHTML = `Aggregated over all ${Object.keys(L.hist.patients).length} test patients. Spatial gates are ${sp.every(p => p.ratio > 1) ? "higher" : "not uniformly higher"} at tumour boundaries (${sp.map(p => H.f(p.b, 2) + " vs " + H.f(p.i, 2)).join(", ")}); cross-modal gates are ${cr.every(p => p.ratio < 1) ? "higher in the interior" : "mixed"} (${cr.map(p => H.f(p.b, 2) + " vs " + H.f(p.i, 2)).join(", ")}). Descriptive: it shows the gates are not constant, not that they improve Dice.`;
+    H.$("#gate-note").innerHTML = `Aggregated over all ${Object.keys(L.hist.patients).length} test patients. Spatial gates are ${sp.every(p => p.ratio > 1) ? "higher" : "not uniformly higher"} at tumor boundaries (${sp.map(p => H.f(p.b, 2) + " vs " + H.f(p.i, 2)).join(", ")}); cross-modal gates are ${cr.every(p => p.ratio < 1) ? "higher in the interior" : "mixed"} (${cr.map(p => H.f(p.b, 2) + " vs " + H.f(p.i, 2)).join(", ")}). Descriptive: it shows the gates are not constant, not that they improve Dice.`;
   }
 
   function setCount(n, why) {

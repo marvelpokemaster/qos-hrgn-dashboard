@@ -38,7 +38,7 @@
     for (let i = 0; i < d.length; i += 4) { d[i] = lut[d[i]]; d[i + 1] = lut[d[i + 1]]; d[i + 2] = lut[d[i + 2]]; }
     g.putImageData(id, 0, 0);
   }
-  function overlayCanvas(p) {          // class colours for panel p (1..3), honouring hidden classes
+  function overlayCanvas(p) {          // class colors for panel p (1..3), honouring hidden classes
     const key = p + "|" + [...S.hidden].sort().join(""); if (S.overlays[key]) return S.overlays[key];
     const c = document.createElement("canvas"); c.width = S.pw; c.height = S.ph; const g = c.getContext("2d"), id = g.createImageData(S.pw, S.ph), m = S.maps[p];
     for (let i = 0; i < m.length; i++) { const k = m[i]; if (!k || S.hidden.has(k)) continue; const rgb = H.CLS[k].rgb; id.data[i * 4] = rgb[0]; id.data[i * 4 + 1] = rgb[1]; id.data[i * 4 + 2] = rgb[2]; id.data[i * 4 + 3] = 255; }
@@ -115,7 +115,7 @@
       ids.map(id => `<div class="mrow"><span style="color:${H.mcolor(id)}">${H.esc(H.model(id).short)}</span>${[0, 1, 2].map(i => `<span class="n">${H.pct(rows[id][i], 1)}</span>`).join("")}<span class="n">${H.f(rows[id][5], 1)}</span></div>`).join("") +
       `<div class="row" style="margin-top:10px"><button class="iconbtn" id="case-rec">Full record &amp; ranks</button></div>`;
     H.$("#case-rec").onclick = () => H.openPatient(cid);
-    H.$("#case-note").innerHTML = "Volume-level metrics for this patient (all slices). HD95 in mm. Dice 0 for ET usually means a small or absent enhancing region.";
+    H.$("#case-note").innerHTML = "Volume-level metrics for this patient (all slices). HD95 in voxels (1 mm isotropic, so ≈ mm). Dice 0 for ET usually means a small or absent enhancing region.";
   }
 
   function setMode(m) {

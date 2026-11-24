@@ -1,5 +1,5 @@
 /* charts.js - dependency-free SVG charts with HUD styling, tooltips and click handlers.
-   Every chart is re-rendered on container resize. Colours come from the caller. */
+   Every chart is re-rendered on container resize. Colors come from the caller. */
 "use strict";
 
 const C = {};

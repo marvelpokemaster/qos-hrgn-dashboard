@@ -28,7 +28,7 @@
     if (f && s) {
       const mh = r => H.mean(["WT", "TC", "ET"].map(k => r["HD95_" + k + "_mean"]));
       out.push(line("info", `Surface error (mean HD95): QoS-HRGN <b class="num">${H.f(mh(f), 2)} mm</b> vs SegResNet <b class="num">${H.f(mh(s), 2)} mm</b>`, "Descriptive only — the saved report gives paired intervals for Dice, not for HD95."));
-      if (f.recorded_training_seconds && s.recorded_training_seconds) out.push(line("info", `Recorded training time: QoS-HRGN <b class="num">${H.hours(f.recorded_training_seconds)}</b> vs SegResNet <b class="num">${H.hours(s.recorded_training_seconds)}</b>`, "The hybrid also needs SLIC graph construction at inference time (excluded from the timing below)."));
+      if (f.recorded_training_seconds && s.recorded_training_seconds) out.push(line("info", `Recorded training time: QoS-HRGN <b class="num">${H.hours(f.recorded_training_seconds)}</b> vs SegResNet <b class="num">${H.hours(s.recorded_training_seconds)}</b>`, "QoS-HRGN also needs SLIC graph construction at inference time (excluded from the timing below)."));
     }
     return out.join("");
   }
@@ -67,7 +67,7 @@
       H.$("#cmd-cohort").textContent = `${M.cohort} · 15k SLIC supervoxels per partition · single seed (42)`;
       const f = H.lb("full"), pn = (r) => `±${H.pct(f["Dice_" + r + "_patient_sd"], 1)} patient SD`;
       H.$("#kpis").innerHTML =
-        gauge("wt", "Whole tumour", k.wt_dice, H.REG_COLOR.WT, pn("WT")) + gauge("tc", "Tumour core", k.tc_dice, H.REG_COLOR.TC, pn("TC")) + gauge("et", "Enhancing", k.et_dice, H.REG_COLOR.ET, pn("ET")) +
+        gauge("wt", "Whole tumor", k.wt_dice, H.REG_COLOR.WT, pn("WT")) + gauge("tc", "Tumor core", k.tc_dice, H.REG_COLOR.TC, pn("TC")) + gauge("et", "Enhancing", k.et_dice, H.REG_COLOR.ET, pn("ET")) +
         `<div class="panel" style="padding:14px 16px"><div class="grid" style="grid-template-columns:1fr 1fr;gap:10px 14px">
           <div class="stat"><span class="k">HD95 WT</span><span class="v">${H.f(k.wt_hd95)}<small> mm</small></span></div>
           <div class="stat"><span class="k">HD95 TC</span><span class="v">${H.f(k.tc_hd95)}<small> mm</small></span></div>

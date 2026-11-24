@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "title": "Validation studies (advisor follow-up)",
+  "source": "Compiled from the saved advisor-follow-up results of the final run (hgt_vs_sage_with_cnn, cnn_error_correction, edge_perturbation, modality_intervention, hop_sensitivity). Values match the final review report. Node-level effects use all 189 test patients; Dice-damage effects use a fixed 30-patient subset.",
+  "scope": "Single seed (42). 95% intervals are patient-paired bootstrap intervals conditional on this cohort and seed.",
+  "verdicts": [
+    {"id": "gates", "label": "Edge gates", "verdict": "supported", "level": "ok", "text": "Removing the highest-gate edges damages predictions far more than removing lowest-gate or random edges."},
+    {"id": "shapley", "label": "Modality Shapley ranking", "verdict": "partly supported", "level": "warn", "text": "Agrees with modality-dropout damage; agreement is weak under noise and bias-field changes."},
+    {"id": "hops", "label": "Effective hops", "verdict": "partly supported", "level": "warn", "text": "Most nodes sit near the two-hop cap, so there is little variation for the hop weights to explain."}
+  ],
+  "tie": {
+    "title": "Typed HGT vs GraphSAGE under the same CNN",
+    "rows": [
+      {"label": "QoS-HRGN (HGT + CNN)", "WT": 92.26, "TC": 89.79, "ET": 85.84, "mean": 89.30, "hd95": [5.46, 4.51, 11.61]},
+      {"label": "GraphSAGE + CNN", "WT": 92.14, "TC": 89.65, "ET": 85.73, "mean": 89.18, "hd95": [5.01, 4.66, 13.57]},
+      {"label": "CNN only", "WT": 91.71, "TC": 88.67, "ET": 84.07, "mean": 88.15, "hd95": [5.82, 4.99, 15.68]}
+    ],
+    "paired": [
+      {"label": "HGT + CNN − GraphSAGE + CNN", "diff": 0.12, "lo": -0.28, "hi": 0.57, "p": 1.000},
+      {"label": "GraphSAGE + CNN − CNN only", "diff": 1.03, "lo": 0.28, "hi": 1.83, "p": 0.035},
+      {"label": "HGT + CNN − CNN only", "diff": 1.15, "lo": 0.36, "hi": 2.02, "p": 0.027}
+    ],
+    "training": "GraphSAGE+CNN CNN stage: best validation Dice 0.8787 at epoch 86 (epoch cap 100, not early-stopped).",
+    "reading": "With the same CNN, the typed HGT graph shows no accuracy advantage over a GraphSAGE graph (difference +0.12 points, interval includes 0). The contribution of the typed graph is the explanations and their tested faithfulness, not accuracy over GraphSAGE."
+  },
+  "cnn_error": {
+    "title": "Voxels the graph prior corrects or introduces (full model vs CNN only, 189 test patients, pooled)",
+    "rows": [
+      {"label": "Edema", "corrected": 935884, "introduced": 185418},
+      {"label": "Necrotic / non-enhancing", "corrected": 228835, "introduced": 206260},
+      {"label": "Enhancing tumor missed by CNN", "corrected": 138143, "introduced": 76669},
+      {"label": "Non-ET called ET (false ET)", "corrected": 170159, "introduced": 154092},
+      {"label": "All voxels", "corrected": 1583971, "introduced": 1460791}
+    ],
+    "facts": [
+      "Per-patient ET Dice gain from the graph prior: +1.28 points (95% CI +0.57 to +2.17, 184 patients with enhancing tumor). The paired comparison over 189 patients gives +1.78 points; the two are separate analyses and are not reconciled.",
+      "Removing every edge of the prior costs 11.97 ET Dice points (CI +9.97 to +14.12).",
+      "69,232 of 138,143 recovered ET voxels (50%) depend on the graph edges; 54,947 of 170,159 cleared false-ET voxels (32%) do.",
+      "False ET: 170,159 cleared vs 154,092 added, so the net effect is small (+16,067). No reduction in false positives is claimed."
+    ]
+  },
+  "faithfulness": [
+    {"id": "3a", "title": "Edge perturbation", "verdict": "supported", "level": "ok",
+     "lines": ["Remove 5% of propagation edges: tumor-node flip rate 0.169 for highest-gate edges vs 0.001 lowest-gate and 0.013 random (189 patients, Holm p = 0.0096).",
+               "ET Dice damage is larger for high-gate removal at 10% and 20% budgets; WT and TC are not significant at this scope.",
+               "Whole-graph scope, 20% removed: high-gate removal costs 0.17 (WT), 0.09 (TC), 0.08 (ET) Dice points; random removal costs about zero."]},
+    {"id": "3b", "title": "Modality intervention vs Shapley", "verdict": "partly supported", "level": "warn",
+     "lines": ["Dropout: Shapley ranking tracks Dice damage (Kendall tau +0.43 WT, +0.46 TC, +0.53 ET; top-1 agreement up to 0.90 vs 0.25 by chance; 30 patients).",
+               "Noise: no agreement at graph level (ET tau +0.02); weak at final level (TC +0.30, ET +0.28).",
+               "Bias field: weak agreement (final-level ET tau +0.18)."]},
+    {"id": "3c", "title": "Hop sensitivity", "verdict": "partly supported", "level": "warn",
+     "lines": ["Forcing two hops: sensitive nodes carry smaller hop weights (Spearman rho = −0.11, interval −0.12 to −0.11).",
+               "Forcing zero hops: no relation (rho = +0.02); dropping hop 1 or hop 2 gives opposite signs (rho = −0.06, −0.09).",
+               "Two-thirds of nodes have an effective hop of at least 1.90 of a maximum of 2; forcing zero hops flips 33% of tumor nodes."]}
+  ],
+  "notes": [
+    {"level": "info", "text": "Graph vs same CNN: +1.15 mean Dice (Holm p = 0.027). HGT vs GraphSAGE with the same CNN: +0.12, interval includes 0."},
+    {"level": "info", "text": "Validation studies: edge gates supported; Shapley ranking and hop weights only partly supported."},
+    {"level": "warn", "text": "Shapley attribution is feature-level: a left-out modality's node features are replaced by background values; the supervoxel partition is not recomputed."}
+  ]
+}

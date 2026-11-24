@@ -337,6 +337,12 @@ def build(extract_dir: Path, with_panels: bool = True):
     with open(DATA_DIR / "hops.json", "w", encoding="utf-8") as fh:
         json.dump(hops, fh, separators=(",", ":"))
     n_panels = sum(1 for q in qualitative if q["panels"])
+    # GraphSAGE + CNN control (summary row from data/validation.json)
+    try:
+        import add_validation_rows
+        add_validation_rows.main()
+    except Exception as exc:  # keep the build usable without validation.json
+        print(f"[warn] validation rows not added: {exc}")
     print(f"[ok] manifest.json: {len(leaderboard)} models, {len(patients)} patients, {len(qualitative)} qualitative cases "
           f"({n_panels} cut into panels), {len(slic)} SLIC rows, {len(hops['patients'])} hop histograms")
     if with_panels and qualitative and not n_panels:

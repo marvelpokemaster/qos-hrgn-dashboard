@@ -1,4 +1,4 @@
-/* zoomview.js - pan / zoom canvas helper (cursor-centred wheel zoom, drag pan, double-click reset, HiDPI).
+/* zoomview.js - pan / zoom canvas helper (cursor-centered wheel zoom, drag pan, double-click reset, HiDPI).
    Used by the scan viewer, the real-graph viewer and the image lightbox. */
 "use strict";
 

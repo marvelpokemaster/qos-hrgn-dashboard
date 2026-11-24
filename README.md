@@ -21,7 +21,7 @@ Data already built is included in `data/`, so `python app.py` works straight awa
 | 3 | Benchmark | sortable table with Δ vs reference, region bars, paired-bootstrap forest plot, patient dot plots (click → case), paired scatter |
 | 4 | Graph Lab | 3D holographic graph: drag-rotate, zoom, hover, click a node → BFS receptive field (fixed K or learned hop), message pulses, gate histogram |
 | 5 | Explain | Shapley / XAI views |
-| 6 | Training | learning curves with best-epoch/stop markers, toggle series |
+| 6 | Training | learning curves with best-epoch/stop markers, toggle series; saved curve tiles now include GraphSAGE+CNN (graph and CNN stages, seed 42) |
 | 7 | SLIC | pilot results |
 | 8 | Validate | HGT vs GraphSAGE+CNN (paired CI), where the graph prior corrects or introduces errors, edge-gate / hop / Shapley faithfulness tests, caveats (reads `data/validation.json`) |
 
@@ -52,5 +52,5 @@ Hotkeys: `1`–`8` views, `/` or `Ctrl+K` command palette, `O` `G` `S` scan mode
 
 ## Honest limits
 The Graph Lab topology is a **schematic**; hop counts and gate values are real samples from test-set histograms.
-The qualitative slice is display-only. Shapley values are not normalized. HD95 has no paired CIs and is reported in voxels (BraTS is 1 mm isotropic, so ≈ mm). The GraphSAGE+CNN comparison is a summary row only (no per-patient file). Validation results are hand-compiled from the saved follow-up run into `data/validation.json`.
+The qualitative slice is display-only. Shapley values are not normalized. HD95 has no paired CIs and is reported in voxels (BraTS is 1 mm isotropic, so ≈ mm). GraphSAGE+CNN is a post-hoc follow-up row with per-patient scores for all 189 test patients (added by `add_graphsage_cnn_patients.py` from the files pulled with `pull_followup_from_hub.py`); it has no cost or timing record, and its Holm values are adjusted within the follow-up run. Validation results are hand-compiled from the saved follow-up run into `data/validation.json`.
 Research use only, not a medical device.

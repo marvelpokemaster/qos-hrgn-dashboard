@@ -2,8 +2,8 @@
 """Add the GraphSAGE + CNN control to data/manifest.json (models, leaderboard, paired comparison).
 
 Source: data/validation.json (tie.rows / tie.paired), compiled from the saved advisor-follow-up results.
-Only summary numbers exist for this model (Dice and HD95 means, one paired CI), so it appears in the
-Benchmark table, bar chart and forest plot but not in the per-patient plots. Idempotent.
+This builds the summary row (Dice and HD95 means, one paired CI) from data/validation.json. When the follow-up files are
+available, add_graphsage_cnn_patients.py runs afterwards and adds per-patient scores and the full paired comparison. Idempotent.
 """
 import json
 from pathlib import Path
@@ -19,8 +19,8 @@ def main():
     m["models"] = [x for x in m["models"] if x["id"] != ID]
     idx = next(i for i, x in enumerate(m["models"]) if x["id"] == "cnn_only") + 1
     m["models"].insert(idx, {"id": ID, "label": "GraphSAGE + CNN", "short": "SAGE+CNN", "family": "graph control",
-                             "desc": "Homogeneous GraphSAGE graph model followed by the same 3D CNN (summary row from the follow-up run; no per-patient file).",
-                             "summary_only": True})
+                             "desc": "Homogeneous GraphSAGE graph model followed by the same 3D CNN (follow-up run; per-patient scores are added by add_graphsage_cnn_patients.py when available).",
+                             "no_cost": True})
     m["leaderboard"] = [r for r in m["leaderboard"] if r["experiment"] != ID]
     lb = {"experiment": ID, "seed": 42, "n_patients": 189, "n_segments_per_partition": 15000}
     for i, g in enumerate(("WT", "TC", "ET")):

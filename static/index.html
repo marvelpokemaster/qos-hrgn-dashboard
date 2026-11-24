@@ -140,7 +140,7 @@
           </div>
         </div>
         <div class="tbl-wrap"><table class="t" id="bench-table"></table></div>
-        <div class="note">Click a column to sort. Gold = best in column. HD95 in mm (lower is better). Dice/IoU/Sensitivity/Precision are patient means; &plusmn; shows patient SD in tooltips.</div>
+        <div class="note">Click a column to sort. Gold = best in column. HD95 in voxels (BraTS is 1 mm isotropic, so voxels ≈ mm; lower is better). Dice/IoU/Sensitivity/Precision are patient means; &plusmn; shows patient SD in tooltips.</div>
       </div>
 
       <div class="grid g2" style="margin-bottom:18px">
@@ -210,7 +210,7 @@
                 <input type="range" id="lab-n" min="0" max="1000" value="300">
                 <div class="seg" id="lab-presets" style="margin-top:6px"><button data-n="240">240</button><button data-n="1000">1k</button><button data-n="3000">3k</button><button data-n="7500">7.5k</button><button data-n="15000">15k</button></div>
                 <div class="faint" id="lab-n-msg" style="margin-top:5px;font-size:12px"></div></div>
-              <div><label class="lbl">Colour nodes by</label><div class="seg" id="lab-color"><button data-k="class" class="on">Class</button><button data-k="hop">Eff. hop</button><button data-k="type">Type</button></div></div>
+              <div><label class="lbl">Color nodes by</label><div class="seg" id="lab-color"><button data-k="class" class="on">Class</button><button data-k="hop">Eff. hop</button><button data-k="type">Type</button></div></div>
               <div><label class="lbl">Receptive field</label><div class="seg" id="lab-rf"><button data-k="fixed" class="on">Fixed K</button><button data-k="learned">Learned (per node)</button></div></div>
               <div id="lab-k-wrap"><label class="lbl">Hop depth K <span class="num" id="lab-k-v">2</span></label><input type="range" id="lab-k" min="0" max="2" step="1" value="2"></div>
               <div><label class="lbl">Relations</label>
@@ -247,7 +247,7 @@
           <div class="ph"><div><h2>Effective-hop distribution</h2><p class="lead" style="margin:0" id="hop-scope"></p></div>
             <div class="tools"><select class="sel" id="hop-patient"></select></div></div>
           <div class="row" style="margin-bottom:6px"><div class="seg" id="hop-region"><button data-k="WT" class="on">WT</button><button data-k="TC">TC</button><button data-k="ET">ET</button><button data-k="BG">BG</button></div>
-            <label class="toggle"><input type="checkbox" id="hop-norm" checked> normalise</label></div>
+            <label class="toggle"><input type="checkbox" id="hop-norm" checked> normalize</label></div>
           <div class="legend" id="hop-legend"></div>
           <div class="chart" id="chart-hops" style="height:300px"></div>
           <div class="note" id="hop-note"></div>
@@ -303,6 +303,33 @@
         </div>
       </div>
     </section>
+
+    <!-- 08 VALIDATE ------------------------------------------------------------------>
+    <section class="view" id="view-validate">
+      <div class="panel gold" style="margin-bottom:18px">
+        <div class="ph"><div><h2 id="val-title">Validation studies</h2><p class="lead" style="margin:0" id="val-scope"></p></div></div>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px" id="val-verdicts"></div>
+        <div class="note" id="val-source" style="margin-top:12px"></div>
+      </div>
+      <div class="panel" style="margin-bottom:18px">
+        <div class="ph"><div><h3 id="val-tie-title"></h3><p class="lead" style="margin:0">Does the typed graph beat a homogeneous GraphSAGE graph once the same 3D CNN is added? Test set, n = 189.</p></div></div>
+        <div class="tbl-wrap"><table class="t" id="val-tie-rows"></table></div>
+        <div class="tbl-wrap" style="margin-top:12px"><table class="t" id="val-tie-paired"></table></div>
+        <div class="note" id="val-tie-note"></div>
+      </div>
+      <div class="grid g2" style="margin-bottom:18px">
+        <div class="panel">
+          <div class="ph"><h3 id="val-err-title"></h3></div>
+          <div class="tbl-wrap"><table class="t" id="val-err-table"></table></div>
+          <ul class="faint" id="val-err-facts" style="padding-left:18px;line-height:1.55"></ul>
+        </div>
+        <div class="stack" id="val-faith"></div>
+      </div>
+      <div class="panel" style="margin-bottom:18px">
+        <div class="ph"><h3>Caveats and reading notes</h3></div>
+        <div id="val-notes"></div>
+      </div>
+    </section>
   </main>
 
   <footer class="foot"><span id="foot-l"></span><span id="foot-r"></span></footer>
@@ -323,6 +350,7 @@
 <script src="/static/js/xai.js"></script>
 <script src="/static/js/train.js"></script>
 <script src="/static/js/slic.js"></script>
+<script src="/static/js/validate.js"></script>
 <script src="/static/js/chat.js"></script>
 <script src="/static/js/main.js"></script>
 </body>

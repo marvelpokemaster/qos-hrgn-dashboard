@@ -8,9 +8,9 @@ const H = {
   cur: null,
   REG: ["WT", "TC", "ET"],
   REG_COLOR: { WT: "#4cc9f0", TC: "#ffb300", ET: "#ff4d4d", BG: "#7fa3b3" },
-  REG_NAME: { WT: "Whole tumour", TC: "Tumour core", ET: "Enhancing tumour", BG: "Background" },
+  REG_NAME: { WT: "Whole tumor", TC: "Tumor core", ET: "Enhancing tumor", BG: "Background" },
   MOD: ["T1", "T1ce", "T2", "FLAIR"],
-  MODEL_COLOR: { full: "#ffb300", segresnet: "#ff4d4d", cnn_only: "#a58bff", no_voxel: "#4cc9f0", graphsage_backbone: "#3ddc97", fixed_shared_hops: "#ff8f5a" },
+  MODEL_COLOR: { full: "#ffb300", segresnet: "#ff4d4d", cnn_only: "#a58bff", no_voxel: "#4cc9f0", graphsage_backbone: "#3ddc97", fixed_shared_hops: "#ff8f5a", graphsage_cnn: "#d6e86b" },
   CLS: [null, { n: "NCR/NET", c: "#e15759", rgb: [225, 87, 89] }, { n: "Edema", c: "#59a14f", rgb: [89, 161, 79] }, { n: "Enhancing", c: "#f1ce63", rgb: [241, 206, 99] }],
 };
 
@@ -63,7 +63,7 @@ H.counter = (el, to, { dec = 2, dur = 1100, suffix = "" } = {}) => {
 /* ---------------------------------------------------------------- router */
 H.TABS = [
   { id: "command", n: "01", label: "Command" }, { id: "scan", n: "02", label: "Scan" }, { id: "bench", n: "03", label: "Benchmark" },
-  { id: "graph", n: "04", label: "Graph lab" }, { id: "xai", n: "05", label: "Explain" }, { id: "train", n: "06", label: "Training" }, { id: "slic", n: "07", label: "SLIC" },
+  { id: "graph", n: "04", label: "Graph lab" }, { id: "xai", n: "05", label: "Explain" }, { id: "train", n: "06", label: "Training" }, { id: "slic", n: "07", label: "SLIC" }, { id: "validate", n: "08", label: "Validate" },
 ];
 H.initTabs = () => {
   const nav = H.$("#tabs");
@@ -164,9 +164,9 @@ H.initKeys = () => {
     if (e.ctrlKey || e.metaKey || e.altKey) { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); H.palette.open(); } return; }
     if (e.key === "Escape") { H.closeModal(); H.closePatient(); H.palette.close(); return; }
     if (e.key === "/") { e.preventDefault(); H.palette.open(); return; }
-    if (/^[1-7]$/.test(e.key)) { H.go(H.TABS[+e.key - 1].id); return; }
+    if (/^[1-8]$/.test(e.key)) { H.go(H.TABS[+e.key - 1].id); return; }
     if (e.key === "f" || e.key === "F") { document.body.classList.toggle("present"); H.onResize.forEach(f => f()); return; }
-    if (e.key === "?") { H.toast("Keys: 1-7 modules · / find patient · F presentation · Scan: ←/→ case, O/G/S mode, B blink, 0 reset · Graph: drag rotate"); return; }
+    if (e.key === "?") { H.toast("Keys: 1-8 modules · / find patient · F presentation · Scan: ←/→ case, O/G/S mode, B blink, 0 reset · Graph: drag rotate"); return; }
     const v = H.views[H.cur]; if (v && v.key) v.key(e);
   });
 };
@@ -177,7 +177,7 @@ H.boot = async () => {
   const boot = H.$("#boot"), log = H.$("#boot-log"), bar = H.$("#boot-bar");
   const quick = matchMedia("(prefers-reduced-motion: reduce)").matches || /nobo+t/.test(location.search) || sessionStorageGet("hud-booted");
   let skip = quick; const onkey = () => { skip = true; }; addEventListener("keydown", onkey, { once: true }); boot.addEventListener("click", onkey, { once: true });
-  const lines = [["Initialising arc-reactor core", 0], ["Mounting verified test artefacts", 1], ["Indexing patients, models, graphs", 2], ["Calibrating Shapley + hop telemetry", 3], ["All systems nominal", 4]];
+  const lines = [["Initializing arc-reactor core", 0], ["Mounting verified test artifacts", 1], ["Indexing patients, models, graphs", 2], ["Calibrating Shapley + hop telemetry", 3], ["All systems nominal", 4]];
   const done = H.load().catch(e => e);
   let i = 0;
   for (const [t, k] of lines) {

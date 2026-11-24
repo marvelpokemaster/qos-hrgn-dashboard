@@ -41,14 +41,14 @@
     });
   }
 
-  const COMP_LABELS = { no_voxel: "QoS-HRGN − graph only", cnn_only: "QoS-HRGN − CNN only", segresnet: "QoS-HRGN − SegResNet", graphsage_backbone: "graph-only HGT − GraphSAGE", fixed_shared_hops: "graph-only HGT − fixed 2-hop" };
+  const COMP_LABELS = { graphsage_cnn: "QoS-HRGN − GraphSAGE + CNN", no_voxel: "QoS-HRGN − graph only", cnn_only: "QoS-HRGN − CNN only", segresnet: "QoS-HRGN − SegResNet", graphsage_backbone: "graph-only HGT − GraphSAGE", fixed_shared_hops: "graph-only HGT − fixed 2-hop" };
   function forest() {
     const m = B.forest, rows = [], vf = H.M.comparisons.vs_full.rows, go = H.M.comparisons.graph_only.rows;
-    ["no_voxel", "cnn_only", "segresnet"].forEach(c => { const d = vf[c] && vf[c][m]; if (d) rows.push({ label: COMP_LABELS[c], diff: d.diff, lo: d.ci[0], hi: d.ci[1], d, id: c }); });
+    ["no_voxel", "cnn_only", "graphsage_cnn", "segresnet"].forEach(c => { const d = vf[c] && vf[c][m]; if (d) rows.push({ label: COMP_LABELS[c], diff: d.diff, lo: d.ci[0], hi: d.ci[1], d, id: c }); });
     ["graphsage_backbone", "fixed_shared_hops"].forEach(c => { const d = go[c] && go[c][m]; if (d) rows.push({ label: COMP_LABELS[c], diff: d.diff, lo: d.ci[0], hi: d.ci[1], d, id: c }); });
     C.forest(H.$("#chart-forest"), { rows, xLabel: "Δ " + m.replace("_", " ") + " (patient bootstrap 95% CI)", fmt: v => C.txt(v, 3), tip: r => H.tip.rows(r.label, [["difference", H.sgn(r.diff, 4)], ["95% CI", `${H.f(r.lo, 4)} … ${H.f(r.hi, 4)}`], ["sign-flip p", r.d.p == null ? "–" : H.f(r.d.p, 4)], ["Holm-adjusted p", r.d.holm == null ? "–" : H.f(r.d.holm, 4)]], r.lo > 0 || r.hi < 0 ? "CI excludes 0" : "CI includes 0 — not distinguishable") });
     const vfm = H.M.comparisons.vs_full;
-    H.$("#forest-note").innerHTML = `Gold = CI excludes 0. First three rows use QoS-HRGN as reference, last two use the graph-only HGT. ${H.esc(vfm.ci_scope || "")}. n = ${vfm.n_patients}.`;
+    H.$("#forest-note").innerHTML = `Gold = CI excludes 0. The first four rows use QoS-HRGN as reference, the last two use the graph-only HGT. GraphSAGE + CNN has a mean-Dice comparison only. ${H.esc(vfm.ci_scope || "")}. n = ${vfm.n_patients}.`;
   }
 
   const PI = (k) => H.M.patients.cols.indexOf(k);
@@ -81,7 +81,7 @@
   }
 
   function cost() {
-    const f = H.M.leaderboard, st = H.M.claims.stopping;
+    const f = H.M.leaderboard.filter(r => !H.model(r.experiment).summary_only), st = H.M.claims.stopping;
     H.$("#cost-sub").textContent = (H.M.runtime_scope || "") + " · inference VRAM is the recorded peak.";
     const stop = (id, stage) => { const s = st[id + "/" + stage]; return s ? `<span class="tag ${s === "early_stopping" ? "ok" : "warn"}">${s === "early_stopping" ? "early stop" : "epoch cap"}</span>` : "–"; };
     H.$("#cost-table").innerHTML = `<thead><tr><th>Model</th><th>Graph params</th><th>Voxel params</th><th>Training time</th><th>Best epoch (graph / voxel)</th><th>Graph stage</th><th>Voxel stage</th><th>Inference / patient</th><th>Peak VRAM</th><th>Nodes</th><th>Edges</th></tr></thead><tbody>` +
@@ -91,11 +91,12 @@
   H.views.bench = {
     init() {
       const M = H.M, ids = M.leaderboard.map(r => r.experiment), opt = ids.map(id => `<option value="${id}">${H.esc(H.mlabel(id))}</option>`).join("");
-      H.$("#bench-sub").textContent = `${M.cohort}. Same patients, same split for every row.`;
-      ["#bench-ref", "#strip-model", "#sc-x", "#sc-y"].forEach(s => H.$(s).innerHTML = opt);
+      H.$("#bench-sub").textContent = `${M.cohort}. Same patients, same split for every row. GraphSAGE + CNN is a summary row (no per-patient file), so it is absent from the patient-level plots and the cost table. Its values are rounded to 0.01 points, so its mean Dice can differ from the report by 0.01.`;
+      const optP = ids.filter(id => !H.model(id).summary_only).map(id => `<option value="${id}">${H.esc(H.mlabel(id))}</option>`).join("");
+      H.$("#bench-ref").innerHTML = opt; ["#strip-model", "#sc-x", "#sc-y"].forEach(s => H.$(s).innerHTML = optP);
       H.$("#bench-ref").value = B.ref; H.$("#strip-model").value = B.stripModel; H.$("#sc-x").value = B.scX; H.$("#sc-y").value = B.scY;
       H.$("#bench-ref").onchange = e => { B.ref = e.target.value; table(); }; H.$("#bench-delta").onchange = e => { B.delta = e.target.checked; table(); };
-      H.$("#bench-table").onclick = e => { const th = e.target.closest("th.sortable"); if (th) { B.sort = { k: th.dataset.k, dir: B.sort.k === th.dataset.k ? -B.sort.dir : (th.dataset.k.startsWith("HD") ? 1 : -1) }; table(); return; } const tr = e.target.closest("tbody tr"); if (tr) { B.stripModel = tr.dataset.id; H.$("#strip-model").value = B.stripModel; table(); strip(); } };
+      H.$("#bench-table").onclick = e => { const th = e.target.closest("th.sortable"); if (th) { B.sort = { k: th.dataset.k, dir: B.sort.k === th.dataset.k ? -B.sort.dir : (th.dataset.k.startsWith("HD") ? 1 : -1) }; table(); return; } const tr = e.target.closest("tbody tr"); if (tr && !H.model(tr.dataset.id).summary_only) { B.stripModel = tr.dataset.id; H.$("#strip-model").value = B.stripModel; table(); strip(); } };
       H.$("#bench-table").addEventListener("mousemove", e => { const td = e.target.closest("td[data-tip]"); td && td.dataset.tip ? H.tip.show(`<div class="r"><b>${H.esc(td.dataset.tip)}</b></div>`, e) : H.tip.hide(); });
       H.$("#bench-table").addEventListener("mouseleave", () => H.tip.hide());
       const seg = (sel, key, fn) => H.$(sel).onclick = e => { const b = e.target.closest("button"); if (!b) return; H.$$(sel + " button").forEach(x => x.classList.toggle("on", x === b)); B[key] = b.dataset.k; fn(); };

@@ -10,12 +10,13 @@
 
   const SUGGEST = {
     command: ["What do these headline numbers mean?", "Is the result statistically better than SegResNet?", "What are the main limitations of this study?"],
-    scan: ["How do I read the overlay and the error panel?", "Why is the lowest-Dice case so low?", "What do the class colours mean?"],
-    bench: ["Why is HD95 so large for enhancing tumour?", "What does the paired bootstrap CI show?", "Which differences are significant?"],
+    scan: ["How do I read the overlay and the error panel?", "Why is the lowest-Dice case so low?", "What do the class colors mean?"],
+    bench: ["Why is HD95 so large for enhancing tumor?", "What does the paired bootstrap CI show?", "Which differences are significant?"],
     graph: ["What is a hop and what do the gates α mean?", "Why does the graph here look random?", "What is the learned receptive field?"],
     xai: ["What is a Shapley value here?", "Which modality matters most and why?", "Why are hops higher for FLAIR nodes?"],
     train: ["Did training converge?", "What does the epoch cap warning mean?", "What is early stopping with patience 15?"],
     slic: ["What is SLIC and why 15k supervoxels?", "Is the SLIC pilot conclusive?", "How does node count affect cost?"],
+    validate: ["Does HGT beat GraphSAGE under the same CNN?", "What do the edge-gate, hop and Shapley tests show?", "Where does the graph prior correct or introduce errors?"],
   };
 
   const fx = (v, d = 2) => v == null || Number.isNaN(+v) ? "n/a" : (+v).toFixed(d);
@@ -24,7 +25,7 @@
   function dataBlock() {
     const M = H.M, k = M.kpis, o = [];
     o.push(`Cohort: ${M.cohort}. Split: ${M.split}. Stage-1 model hash prefix: ${M.model_hash.slice(0, 20)}. Single training seed (42).`);
-    o.push(`Task: BraTS 2021 brain tumour segmentation (WT whole tumour, TC tumour core, ET enhancing tumour) from T1ce and FLAIR. Pipeline: SLIC supervoxels (${k.supervoxels} per partition, one partition per modality) -> typed heterogeneous graph (T1ce and FLAIR nodes; relations T1ce-spatial, FLAIR-spatial, T1ce<->FLAIR correspondence) -> HGT graph network with a learned 0-2 hop mixture and edge gates alpha -> node probabilities projected to voxels -> 3D CNN refinement. Average graph: ${Math.round(k.nodes)} nodes, ${Math.round(k.edges)} edges. Parameters: graph ${k.graph_params}, voxel CNN ${k.voxel_params}.`);
+    o.push(`Task: BraTS 2021 brain tumor segmentation (WT whole tumor, TC tumor core, ET enhancing tumor) from T1ce and FLAIR. Pipeline: SLIC supervoxels (${k.supervoxels} per partition, one partition per modality) -> typed heterogeneous graph (T1ce and FLAIR nodes; relations T1ce-spatial, FLAIR-spatial, T1ce<->FLAIR correspondence) -> HGT graph network with a learned 0-2 hop mixture and edge gates alpha -> node probabilities projected to voxels -> 3D CNN refinement. Average graph: ${Math.round(k.nodes)} nodes, ${Math.round(k.edges)} edges. Parameters: graph ${k.graph_params}, voxel CNN ${k.voxel_params}.`);
     o.push(`Headline (full model, test mean over patients): Dice WT ${pc(k.wt_dice)}, TC ${pc(k.tc_dice)}, ET ${pc(k.et_dice)}, mean ${pc(k.mean_dice)}; HD95 mm WT ${fx(k.wt_hd95)}, TC ${fx(k.tc_hd95)}, ET ${fx(k.et_hd95)}.`);
     o.push("MODELS (test cohort, patient means):");
     M.models.forEach(m => {
@@ -37,8 +38,19 @@
     if (M.comparisons.graph_only) cmp("graph-only controls", "Graph-only HGT", M.comparisons.graph_only.rows);
     o.push("CAVEATS FLAGGED BY THE DATA:"); (M.claims.notes || []).forEach(n => o.push(`- [${n.level}] ${n.text}`));
     const hs = M.hop_summary || {}; o.push(`EFFECTIVE HOPS (mean over patients of node-level learned hop in [0,2]; ${M.hop_scope}): ` + Object.entries(hs).map(([key, v]) => `${key} ${fx(v.patient_mean)}±${fx(v.patient_sd)}`).join(", "));
-    const sh = M.shapley && M.shapley.summary; if (sh) o.push(`SHAPLEY (modality attribution, mean over ${Object.values(sh)[0].n_present} explained patients; modality order ${H.MOD.join(", ")}; values are raw, not normalised): ` + Object.entries(sh).map(([g, v]) => `${g} ${v.mean.map((x, i) => H.MOD[i] + " " + fx(x, 3)).join(" ")}`).join(" | "));
+    const sh = M.shapley && M.shapley.summary; if (sh) o.push(`SHAPLEY (modality attribution, mean over ${Object.values(sh)[0].n_present} explained patients; modality order ${H.MOD.join(", ")}; values are raw, not normalized): ` + Object.entries(sh).map(([g, v]) => `${g} ${v.mean.map((x, i) => H.MOD[i] + " " + fx(x, 3)).join(" ")}`).join(" | "));
     if (M.slic && M.slic.rows) o.push(`SLIC PILOT (validation set, ${M.slic.rows[0].n_patients} patients, short epoch-capped runs - not conclusive): ` + M.slic.rows.slice().sort((a, b) => a.n_segments_per_partition - b.n_segments_per_partition).map(r => `${r.n_segments_per_partition} seg -> ~${Math.round(r.graph_nodes_mean)} nodes, Dice WT/TC/ET ${pc(r.Dice_WT_mean)}/${pc(r.Dice_TC_mean)}/${pc(r.Dice_ET_mean)}`).join("; "));
+    const V = H.validation;
+    if (V) {
+      o.push(`VALIDATION STUDIES (${V.scope})`);
+      V.verdicts.forEach(v => o.push(`- ${v.label}: ${v.verdict}. ${v.text}`));
+      o.push("HGT vs GraphSAGE under the same CNN (test, mean Dice WT/TC/ET/mean; HD95 WT/TC/ET in voxels at 1 mm isotropic): " + V.tie.rows.map(r => `${r.label} ${fx(r.WT)}/${fx(r.TC)}/${fx(r.ET)}/${fx(r.mean)}; HD95 ${r.hd95.map(x => fx(x)).join("/")}`).join(" | "));
+      V.tie.paired.forEach(r => o.push(`Paired: ${r.label} ${fx(r.diff)} pts, 95% CI [${fx(r.lo)}, ${fx(r.hi)}], Holm p ${fx(r.p, 3)}`));
+      o.push(`Reading: ${V.tie.reading}`);
+      o.push(`CNN-error analysis (${V.cnn_error.title}): ` + V.cnn_error.rows.map(r => `${r.label} corrected ${r.corrected}, introduced ${r.introduced}`).join("; ") + ". " + V.cnn_error.facts.join(" "));
+      V.faithfulness.forEach(t => o.push(`Faithfulness ${t.id} ${t.title} [${t.verdict}]: ${t.lines.join(" ")}`));
+      V.notes.forEach(n => o.push(`- [${n.level}] ${n.text}`));
+    }
     o.push(`Runtime scope: ${M.runtime_scope}.`);
     return o.join("\n");
   }
@@ -54,18 +66,18 @@
       }
       const gl = H.views.graph && H.views.graph._state;
       if (H.cur === "graph" && gl && gl.nodes.length) {
-        o.push(`Graph Lab: schematic 3D sample with ${gl.N} nodes and ${gl.edges.length} edges (the real graph has ~${Math.round(M.kpis.nodes)} nodes / ~${Math.round(M.kpis.edges)} edges). Layout is random; hop and gate values are sampled from real aggregated test histograms. Colour mode: ${gl.color}; receptive field: ${gl.rf === "fixed" ? "fixed K=" + gl.K : "learned per node"}.`);
+        o.push(`Graph Lab: schematic 3D sample with ${gl.N} nodes and ${gl.edges.length} edges (the real graph has ~${Math.round(M.kpis.nodes)} nodes / ~${Math.round(M.kpis.edges)} edges). Layout is random; hop and gate values are sampled from real aggregated test histograms. Color mode: ${gl.color}; receptive field: ${gl.rf === "fixed" ? "fixed K=" + gl.K : "learned per node"}.`);
         if (gl.sel >= 0) { const n = gl.nodes[gl.sel]; o.push(`Selected node #${gl.sel}: ${n.t ? "FLAIR" : "T1ce"}, predicted class index ${n.pred} (0 background, 1 NCR/NET, 2 edema, 3 enhancing), effective hop ${fx(n.hop)}, degree ${n.nb.length}` + (gl.bfs ? `, receptive field node counts per hop ${gl.bfs.counts.join(" / ")}.` : ".")); }
       }
     } catch (e) { /* context is best-effort */ }
     return o.join("\n");
   }
 
-  const RULES = `You are the built-in assistant of the QoS-HRGN research dashboard (BraTS 2021 brain-tumour segmentation using a typed heterogeneous supervoxel graph plus 3D CNN refinement). Help the user understand the project, this dashboard, the numbers shown, and the underlying concepts (graph neural networks, HGT, message passing, hops, edge gates, SLIC supervoxels, Shapley attribution, Dice/HD95/sensitivity/precision, bootstrap CIs, early stopping, ablations).
+  const RULES = `You are the built-in assistant of the QoS-HRGN research dashboard (BraTS 2021 brain-tumor segmentation using a typed heterogeneous supervoxel graph plus 3D CNN refinement). Help the user understand the project, this dashboard, the numbers shown, and the underlying concepts (graph neural networks, HGT, message passing, hops, edge gates, SLIC supervoxels, Shapley attribution, Dice/HD95/sensitivity/precision, bootstrap CIs, early stopping, ablations).
 Rules:
 - Treat the DATA block as ground truth for this project's numbers. If a number or fact is not in DATA, say you do not have it; never invent results, and label general background knowledge as general.
 - Be concise: short paragraphs; bullets only when they help. Explain jargon in plain words. Give the number and its meaning.
-- Be honest about limitations whenever relevant (single seed; voxel stage ended at the epoch cap so it is not shown to be converged; some CIs include 0; the SLIC study is a short pilot; the Graph Lab layout is a schematic).
+- Be honest about limitations whenever relevant (single seed; voxel stage ended at the epoch cap so it is not shown to be converged; some CIs include 0 (HGT vs GraphSAGE+CNN is statistically indistinguishable); Shapley and hop tests are only partly supported; the SLIC study is a short pilot; the Graph Lab layout is a schematic).
 - This is a research tool, not a medical device; do not give clinical advice.
 - Answer in the language the user writes in.`;
 

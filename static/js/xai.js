@@ -23,7 +23,7 @@
       const v = ser.find(s => s.id === r).values, pos = v.map(x => Math.max(0, x)), tot = pos.reduce((a, b) => a + b, 0) || 1, order = v.map((x, i) => i).sort((a, b) => v[b] - v[a]);
       return `<div class="finding info"><div class="ic" style="color:${H.REG_COLOR[r]}">${r}</div><div><b>${H.MOD[order[0]]}</b> is the largest contributor (${H.f(v[order[0]], 3)}, ${(100 * pos[order[0]] / tot).toFixed(0)}% of the positive attribution), then <b>${H.MOD[order[1]]}</b> (${H.f(v[order[1]], 3)}).</div></div>`;
     }).join("");
-    H.$("#shap-insights").innerHTML = lines + `<div class="note">Bars are contributions to the graph model's region probability, <b>not normalised to 100%</b>; they can be negative for a single patient. Graph branch only, fixed topology — no CNN or SLIC attribution. ${X.shapPatient === "mean" ? "Error bars: SD across the ten patients." : ""}</div>`;
+    H.$("#shap-insights").innerHTML = lines + `<div class="note">Bars are contributions to the graph model's region probability, <b>not normalized to 100%</b>; they can be negative for a single patient. Graph branch only, fixed topology — no CNN or SLIC attribution. ${X.shapPatient === "mean" ? "Error bars: SD across the ten patients." : ""}</div>`;
   }
 
   function hops() {

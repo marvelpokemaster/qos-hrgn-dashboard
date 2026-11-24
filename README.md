@@ -23,11 +23,12 @@ Data already built is included in `data/`, so `python app.py` works straight awa
 | 5 | Explain | Shapley / XAI views |
 | 6 | Training | learning curves with best-epoch/stop markers, toggle series |
 | 7 | SLIC | pilot results |
+| 8 | Validate | HGT vs GraphSAGE+CNN (paired CI), where the graph prior corrects or introduces errors, edge-gate / hop / Shapley faithfulness tests, caveats (reads `data/validation.json`) |
 
 ### Graph size (Graph Lab)
 The **Graph size** slider (and 240 / 1k / 3k / 7.5k / 15k presets) sets the number of nodes in the 3D sample from **240 to 15,000**
-(half T1ce, half FLAIR; 4-nearest-neighbour spatial edges per modality plus T1ce↔FLAIR correspondence edges). A spatial-hash
-neighbour search builds 15k nodes in ~0.3 s; above 2,500 nodes edges are drawn in batches and nodes as small squares, and
+(half T1ce, half FLAIR; 4-nearest-neighbor spatial edges per modality plus T1ce↔FLAIR correspondence edges). A spatial-hash
+neighbor search builds 15k nodes in ~0.3 s; above 2,500 nodes edges are drawn in batches and nodes as small squares, and
 *show all edges* can be switched off for maximum speed. The real graph has ≈30k nodes / ≈430k edges per patient.
 
 ### Chat assistant (Google AI / Gemini)
@@ -38,17 +39,18 @@ Shapley, SLIC pilot, caveats) plus what tab/case/node you are looking at, and sa
 - Default model `gemini-2.5-flash`; ⚙ → *List models* shows what your key can use (or set `QOS_CHAT_MODEL`).
 - The browser talks only to your local `app.py`, which calls Google (key never appears in page code or on disk).
   With `--host 0.0.0.0` the server-side env key is ignored unless you add `--share-key`.
+- The chat assistant needs internet access and a Gemini key; everything else works offline.
 - Questions + the dashboard's summary numbers are sent to Google; no patient images are sent.
 
-Hotkeys: `1`–`7` views, `/` or `Ctrl+K` command palette, `O` `G` `S` scan modes, `B` blink, `F` present mode, `C` chat, `←`/`→` previous/next case, `?` help.
+Hotkeys: `1`–`8` views, `/` or `Ctrl+K` command palette, `O` `G` `S` scan modes, `B` blink, `F` present mode, `C` chat, `←`/`→` previous/next case, `?` help.
 
 ## Issues fixed versus the previous dashboard
 - Missing `app.py` / broken run instructions; CDN dependencies (ECharts, Tailwind) that fail offline.
 - Hard-coded / placeholder numbers replaced by values computed from the reports; Windows path separators in URLs.
-- Stale `practical-v8` labels; the hybrid voxel stage is now flagged **epoch cap** (not converged) and single-seed / CI-includes-0 caveats are shown.
+- Stale `practical-v8` labels; the 3D CNN voxel stage is now flagged **epoch cap** (not converged) and single-seed / CI-includes-0 caveats are shown.
 - Path-traversal guard in the server; null-region crashes in the data prep; chart tooltips/overflow and mobile layout; async init race in the Graph Lab.
 
 ## Honest limits
 The Graph Lab topology is a **schematic**; hop counts and gate values are real samples from test-set histograms.
-The qualitative slice is display-only. Shapley values are not normalised. HD95 has no paired CIs.
+The qualitative slice is display-only. Shapley values are not normalized. HD95 has no paired CIs and is reported in voxels (BraTS is 1 mm isotropic, so ≈ mm). The GraphSAGE+CNN comparison is a summary row only (no per-patient file). Validation results are hand-compiled from the saved follow-up run into `data/validation.json`.
 Research use only, not a medical device.

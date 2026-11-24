@@ -343,6 +343,12 @@ def build(extract_dir: Path, with_panels: bool = True):
         add_validation_rows.main()
     except Exception as exc:  # keep the build usable without validation.json
         print(f"[warn] validation rows not added: {exc}")
+    # Per-patient GraphSAGE + CNN scores, if the follow-up files were pulled (pull_followup_from_hub.py -> ../hub_extract)
+    try:
+        import add_graphsage_cnn_patients
+        add_graphsage_cnn_patients.apply(str(BASE_DIR.parent / "hub_extract"), str(DATA_DIR / "manifest.json"))
+    except Exception as exc:
+        print(f"[warn] GraphSAGE + CNN stays a summary row (per-patient files not applied): {exc}")
     print(f"[ok] manifest.json: {len(leaderboard)} models, {len(patients)} patients, {len(qualitative)} qualitative cases "
           f"({n_panels} cut into panels), {len(slic)} SLIC rows, {len(hops['patients'])} hop histograms")
     if with_panels and qualitative and not n_panels:

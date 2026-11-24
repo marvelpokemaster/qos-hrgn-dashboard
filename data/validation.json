@@ -33,7 +33,7 @@
       {"label": "All voxels", "corrected": 1583971, "introduced": 1460791}
     ],
     "facts": [
-      "Per-patient ET Dice gain from the graph prior: +1.28 points (95% CI +0.57 to +2.17, 184 patients with enhancing tumor). The paired comparison over 189 patients gives +1.78 points; the two are separate analyses and are not reconciled.",
+      "Per-patient ET Dice gain from the graph prior: +1.28 points (95% CI +0.57 to +2.17, 184 patients with enhancing tumor). The paired comparison over all 189 patients gives +1.78 points. The gap comes from the 5 test patients with no enhancing tumor in the ground truth: four tie, and in one (BraTS2021_01666) the full model predicts no ET (Dice 1.0 under the empty-mask convention) while CNN-only does not (Dice 0.0), which adds 0.53 points. Recomputed from the per-patient test scores.",
       "Removing every edge of the prior costs 11.97 ET Dice points (CI +9.97 to +14.12).",
       "69,232 of 138,143 recovered ET voxels (50%) depend on the graph edges; 54,947 of 170,159 cleared false-ET voxels (32%) do.",
       "False ET: 170,159 cleared vs 154,092 added, so the net effect is small (+16,067). No reduction in false positives is claimed."

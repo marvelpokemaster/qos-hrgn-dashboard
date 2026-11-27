@@ -12,6 +12,7 @@ python app.py                                                  # http://localhos
 ```
 Requires only Python 3.9+ (Pillow + numpy for the prepare step). No npm, no CDN: works offline.
 Data already built is included in `data/`, so `python app.py` works straight away.
+The figures under `data/extracted/` are tracked in git on purpose, so a fresh clone shows every image without running the prepare step. Run `extract_and_prepare.py` only to rebuild from a new `final_reports.zip`.
 
 ## Views
 | Key | View | What you can do |
